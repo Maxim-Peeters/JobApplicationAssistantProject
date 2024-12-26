@@ -1,5 +1,7 @@
 ﻿
+using AutoMapper;
 using DAL;
+using DAL.Dto;
 using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,57 +9,81 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class CompaniesController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public CompaniesController(IUnitOfWork unitOfWork)
+        public CompaniesController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
+        // GET: http://.../Companies
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
+        public async Task<ActionResult<IEnumerable<CompanyResponse>>> GetCompanies()
         {
             var companies = await _unitOfWork.CompanyRepository.GetAllAsync(query =>
                 query.Include(c => c.Jobs));
+
+            var companiesDto = _mapper.Map<IEnumerable<CompanyResponse>>(companies);
             return Ok(companies);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Company>> GetCompany(int id)
+        // GET: http://.../Companies/{id}
+        [HttpGet("by-id/{id}")]
+        public async Task<ActionResult<CompanyResponse>> GetCompanyById(int id)
         {
             var company = await _unitOfWork.CompanyRepository.FindAsync(
                 c => c.Id == id,
                 include => include.Include(c => c.Jobs));
 
             if (company == null) return NotFound();
-            return Ok(company);
+
+            var companyResponse = _mapper.Map<CompanyResponse>(company);
+            return Ok(companyResponse);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Company>> CreateCompany(Company company)
+        // POST: http://.../Companies
+        [HttpPost("create")]
+        public async Task<ActionResult<CompanyResponse>> CreateCompany(CompanyRequest companyRequest)
         {
+            var company = _mapper.Map<Company>(companyRequest);
+
             await _unitOfWork.CompanyRepository.InsertAsync(company);
             await _unitOfWork.SaveAsync();
-            return CreatedAtAction(nameof(GetCompany), new { id = company.Id }, company);
+
+            var companyResponse = _mapper.Map<CompanyResponse>(company);
+            return CreatedAtAction(nameof(GetCompanyById), new { id = company.Id }, companyResponse);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCompany(int id, Company company)
+        // PUT: http://.../Jobs/update/{id}
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateJob(int id, [FromBody] JobRequest jobRequest)
         {
-            if (id != company.Id) return BadRequest();
-            await _unitOfWork.CompanyRepository.UpdateAsync(company);
+            var existingJob = await _unitOfWork.JobRepository.GetByIDAsync(id);
+            if (existingJob == null) return NotFound("Job not found.");
+
+            _mapper.Map(jobRequest, existingJob);
+
+            await _unitOfWork.JobRepository.UpdateAsync(existingJob);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCompany(int id)
+        // DELETE: http://.../Jobs/remove/{id}
+        [HttpDelete("remove/{id}")]
+        public async Task<IActionResult> RemoveJob(int id)
         {
-            await _unitOfWork.CompanyRepository.DeleteAsync(id);
+            var existingJob = await _unitOfWork.JobRepository.GetByIDAsync(id);
+            if (existingJob == null) return NotFound("Job not found.");
+
+            await _unitOfWork.JobRepository.DeleteAsync(id);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
     }

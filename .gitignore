@@ -8,10 +8,6 @@ obj/
 *.userosscache
 *.sln.docstates
 
-# Configuration files
-appsettings.json
-appsettings.Development.json
-
 # IDE-specific
 .vs/
 .vscode/

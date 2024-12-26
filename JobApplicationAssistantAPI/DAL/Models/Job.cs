@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DAL.Models
 {
@@ -19,10 +14,11 @@ namespace DAL.Models
         public string Location { get; set; }
         public JobType Type { get; set; }
         public ExperienceLevel RequiredExperience { get; set; }
-        public int CompanyId { get; set; }
         public DateTime PostedDate { get; set; }
         public bool IsActive { get; set; }
         public List<string> RequiredSkills { get; set; }
+
+        public int CompanyId { get; set; }
         public Company Company { get; set; }
     }
 
