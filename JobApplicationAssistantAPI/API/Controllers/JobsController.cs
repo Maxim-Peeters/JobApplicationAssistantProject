@@ -32,7 +32,7 @@ namespace API.Controllers
         }
 
         // GET: http://.../Jobs/by-id/{id}
-        [HttpGet("{id}")]
+        [HttpGet("by-id/{id}")]
         public async Task<ActionResult<Job>> GetJobById(int id)
         {
             var job = await _unitOfWork.JobRepository.FindAsync(
