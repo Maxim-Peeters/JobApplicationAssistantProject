@@ -1,0 +1,31 @@
+# .NET Core
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Configuration files
+appsettings.json
+appsettings.Development.json
+
+# IDE-specific
+.vs/
+.vscode/
+
+# Build output
+*.dll
+*.pdb
+*.exe
+
+# NuGet packages
+project.assets.json
+project.nuget.cache
+
+# Temporary files and caches
+*.cache
+*.log
+*.tmp
