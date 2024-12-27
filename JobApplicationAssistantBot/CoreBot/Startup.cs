@@ -1,7 +1,9 @@
-﻿// Generated with CoreBot .NET Template version v4.22.0
+﻿// Simplified Startup.cs
 
 using CoreBot.Bots;
 using CoreBot.Dialogs;
+using CoreBot.Models;
+using CoreBot.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
@@ -14,14 +16,10 @@ namespace CoreBot
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
+        // Configure services for the bot.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpClient().AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.MaxDepth = HttpHelper.BotMessageSerializerSettings.MaxDepth;
-            });
-
+            services.AddHttpClient().AddControllers().AddNewtonsoftJson();
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
@@ -29,29 +27,34 @@ namespace CoreBot
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
-            // Create the storage we'll be using for User and Conversation state. (Memory is great for testing purposes.)
+            // Create the storage for User and Conversation state.
             services.AddSingleton<IStorage, MemoryStorage>();
 
-            // Create the User state. (Used in this bot's Dialog implementation.)
+            // Create the User state.
             services.AddSingleton<UserState>();
 
-            // Create the Conversation state. (Used by the Dialog system itself.)
+            // Create the Conversation state.
             services.AddSingleton<ConversationState>();
 
-            // Register LUIS recognizer
-            services.AddSingleton<FlightBookingRecognizer>();
+            // Create the dataservices
+            services.AddSingleton<ApplicationDataService>();
+            services.AddSingleton<JobDataService>();
+            services.AddSingleton<CompanyDataService>();
+            // Create the ApiService.
+            services.AddSingleton<IApiService, ApiService>();
 
-            // Register the BookingDialog.
-            services.AddSingleton<BookingDialog>();
+            // Register GetJobsDialog.
+            services.AddSingleton<GetJobsDialog>();
 
             // The MainDialog that will be run by the bot.
             services.AddSingleton<MainDialog>();
 
-            // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
+
+            // Create the bot as a transient.
             services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // Configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -68,8 +71,6 @@ namespace CoreBot
                 {
                     endpoints.MapControllers();
                 });
-
-            // app.UseHttpsRedirection();
         }
     }
 }
