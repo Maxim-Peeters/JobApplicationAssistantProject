@@ -1,6 +1,7 @@
 ﻿// Simplified Startup.cs
 
 using CoreBot.Bots;
+using CoreBot.CognitiveModels;
 using CoreBot.Dialogs;
 using CoreBot.Models;
 using CoreBot.Services;
@@ -23,6 +24,11 @@ namespace CoreBot
 
             // Create the Bot Framework Authentication to be used with the Bot Adapter.
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
+
+            // Register the CLU recognizer
+            services.AddSingleton<JobApplicationAssistantBotCLURecognizer>();
+            // Create the bot services (CLU, etc.) as a singleton.
+            services.AddSingleton<JobApplicationAssistantBotModel>();
 
             // Create the Bot Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();

@@ -50,29 +50,11 @@ namespace CoreBot.Dialogs
                     return await stepContext.EndDialogAsync(null, cancellationToken);
                 }
 
-                var attachments = new List<Attachment>();
-                foreach (var job in jobs)
-                {
-                    var jobCard = new HeroCard
-                    {
-                        Title = job.Title,
-                        Subtitle = $"Location: {job.Location}",
-                        Text = $"Description: {job.Description}\n" +
-                              $"Salary: {job.Salary:C}\n" +
-                              $"Required Experience: {job.RequiredExperience}\n" +
-                              $"Required Skills: {string.Join(", ", job.RequiredSkills ?? new List<string>())}\n" +
-                              $"Posted Date: {job.PostedDate:d}",
-                        Buttons = new List<CardAction>
-                    {
-                        new CardAction(ActionTypes.ImBack, "View Details", value: $"job details {job.Id}")
-                    }
-                    };
-
-                    attachments.Add(jobCard.ToAttachment());
-                }
-
+                var attachments = await GetJobsCard.GetJobsAttachmentsAsync(_jobDataService);
                 var reply = MessageFactory.Carousel(attachments);
                 await stepContext.Context.SendActivityAsync(reply, cancellationToken);
+
+                _logger.LogInformation($"Successfully sent carousel with {attachments.Count} job cards");
             }
             catch (Exception ex)
             {

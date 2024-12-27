@@ -1,9 +1,9 @@
 ﻿using System.Net.Http;
-using System.Text.Json;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace CoreBot.Services
 {
@@ -22,7 +22,6 @@ namespace CoreBot.Services
         private readonly string _baseUrl;
         private readonly ILogger<ApiService> _logger;
 
-
         public ApiService(IConfiguration configuration, ILogger<ApiService> logger)
         {
             _logger = logger;
@@ -31,59 +30,38 @@ namespace CoreBot.Services
             _client = new HttpClient();
             _client.BaseAddress = new Uri(_baseUrl);
             _logger.LogInformation("Initializing ApiService with base URL: {BaseUrl}", _baseUrl);
-
         }
 
         public async Task<T> GetAllAsync<T>(string endpoint)
         {
-            try
-            {
-                _logger.LogInformation("Making GET request to {Endpoint}", endpoint);
-
-                var response = await _client.GetAsync(endpoint);
-                _logger.LogInformation("Received response with status code: {StatusCode}", response.StatusCode);
-
-                response.EnsureSuccessStatusCode();
-
-                var content = await response.Content.ReadAsStringAsync();
-                _logger.LogDebug("Received content: {Content}", content);
-
-                return JsonSerializer.Deserialize<T>(content);
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "HTTP request failed for endpoint {Endpoint}. Status: {Status}",
-                    endpoint, ex.StatusCode);
-                throw;
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, "Failed to deserialize response from {Endpoint}", endpoint);
-                throw;
-            }
+            var response = await _client.GetAsync(endpoint);
+            var content = await response.Content.ReadAsStringAsync();
+            _logger.LogDebug($"GET {endpoint} response: {content}");
+            response.EnsureSuccessStatusCode();
+            return JsonConvert.DeserializeObject<T>(content);
         }
 
         public async Task<T> GetByIdAsync<T>(string endpoint, int id)
         {
             var response = await _client.GetAsync($"{endpoint}/by-id/{id}");
-            response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(content);
+            response.EnsureSuccessStatusCode();
+            return JsonConvert.DeserializeObject<T>(content);
         }
 
         public async Task<T> PostAsync<T, TRequest>(string endpoint, TRequest request)
         {
-            var json = JsonSerializer.Serialize(request);
+            var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync($"{endpoint}/create/", data);
+            var response = await _client.PostAsync($"{endpoint}/create", data);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(content);
+            return JsonConvert.DeserializeObject<T>(content);
         }
 
         public async Task PutAsync<TRequest>(string endpoint, int id, TRequest request)
         {
-            var json = JsonSerializer.Serialize(request);
+            var json = JsonConvert.SerializeObject(request);
             var data = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _client.PutAsync($"{endpoint}/update/{id}", data);
             response.EnsureSuccessStatusCode();
