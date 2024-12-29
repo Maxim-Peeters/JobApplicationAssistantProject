@@ -7,6 +7,9 @@ using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 using CoreBot.CognitiveModels;
 using CoreBot.Models;
+using CoreBot.Cards;
+using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace CoreBot.Dialogs
 {
@@ -17,11 +20,9 @@ namespace CoreBot.Dialogs
 
         public MainDialog(
             JobApplicationAssistantBotCLURecognizer recognizer,
-            GetJobsDialog getJobsDialog,
-            // SearchJobsDialog searchJobsDialog,
-            // ApplyForJobDialog applyForJobDialog,
-            // CheckStatusDialog checkStatusDialog,
-            // ScheduleInterviewDialog scheduleInterviewDialog,
+            SearchJobsDialog searchJobsDialog,
+            //ApplyForJobDialog applyForJobDialog,
+            CheckApplicationStatusDialog checkStatusDialog,
             ILogger<MainDialog> logger)
             : base(nameof(MainDialog))
         {
@@ -29,15 +30,13 @@ namespace CoreBot.Dialogs
             _logger = logger;
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
-            AddDialog(getJobsDialog);
-            // AddDialog(searchJobsDialog);
+            AddDialog(searchJobsDialog);
             // AddDialog(applyForJobDialog);
-            // AddDialog(checkStatusDialog);
-            // AddDialog(scheduleInterviewDialog);
+            AddDialog(checkStatusDialog);
 
             var waterfallSteps = new WaterfallStep[]
             {
-                IntroStepAsync,
+                FirstActionStepAsync,
                 ActStepAsync,
                 FinalStepAsync,
             };
@@ -46,48 +45,42 @@ namespace CoreBot.Dialogs
 
             InitialDialogId = nameof(WaterfallDialog);
         }
-
-        private async Task<DialogTurnResult> IntroStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> FirstActionStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            if (!_recognizer.IsConfigured)
+            {
+                throw new InvalidOperationException("Error: Recognizer not configured properly.");
+            }
+
             var messageText = stepContext.Options?.ToString() ??
-                "How can I assist you with job applications today?\nYou can:\n" +
-                // "• Search for jobs\n" +
-                // "• Apply for a position\n" +
-                // "• Check application status\n" +
-                // "• Schedule interviews\n" +
-                "• View your applications";
-
-            var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
-            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
+                            "How can I assist you with job applications today?\nYou can:\n" +
+                             "• Search for jobs\n" +
+                            "• Apply for a position\n" +
+                            "• View your applications"; 
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput) }, cancellationToken);
         }
-
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             try
             {
                 // Get the intent analysis from CLU
                 var result = await _recognizer.RecognizeAsync<JobApplicationAssistantBotModel>(stepContext.Context, cancellationToken);
-
-
-
+                var topIntent = result.GetTopIntent().intent;
+                _logger.LogInformation($"Top intent detected: {topIntent}");
                 // Handle different intents based on the recognition result
                 switch (result.GetTopIntent().intent)
                 {
-                    // case JobApplicationAssistantBotModel.Intent.SearchJobs:
-                    //     // Extract relevant entities
-                    //     var jobTitle = luisResult.Entities.GetJobTitle();
-                    //     var location = luisResult.Entities.GetJobLocation();
-                    //     var jobType = luisResult.Entities.GetJobType();
+                    case JobApplicationAssistantBotModel.Intent.SearchJobs:
+                        return await stepContext.BeginDialogAsync(
+                            nameof(SearchJobsDialog),
+                            null,
+                            cancellationToken);
 
-                    //     return await stepContext.BeginDialogAsync(
-                    //         nameof(SearchJobsDialog),
-                    //         new { jobTitle, location, jobType },
-                    //         cancellationToken);
-
-                    // case JobApplicationAssistantBotModel.Intent.ApplyForJob:
-                    //     // Extract application-related entities
-                    //     var resumeUrl = luisResult.Entities.GetResumeUrl();
-                    //     var coverLetterUrl = luisResult.Entities.GetCoverLetterUrl();
+                    case JobApplicationAssistantBotModel.Intent.CheckApplicationStatus:
+                        return await stepContext.BeginDialogAsync(
+                                nameof(CheckApplicationStatusDialog),
+                                null,
+                                cancellationToken);
 
                     //     return await stepContext.BeginDialogAsync(
                     //         nameof(ApplyForJobDialog),
@@ -118,17 +111,20 @@ namespace CoreBot.Dialogs
 
                     default:
                         // Handle the case when no intent matches or score is too low
-                        
-                            var didntUnderstandMessageText =
-                                "I'm not sure I understood that. Could you please rephrase your request? " +
-                                "You can view your applications.";
-                            var didntUnderstandMessage = MessageFactory.Text(
-                                didntUnderstandMessageText,
-                                didntUnderstandMessageText,
-                                InputHints.ExpectingInput);
-                            await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
-                            return await stepContext.NextAsync(null, cancellationToken);
-                        
+
+                        var didntUnderstandMessageText =
+
+                            "How can I assist you with job applications today?\nYou can:\n" +
+                             "• Search for jobs\n" +
+                            "• Apply for a position\n" +
+                            "• View your applications";
+                        var didntUnderstandMessage = MessageFactory.Text(
+                            didntUnderstandMessageText,
+                            didntUnderstandMessageText,
+                            InputHints.ExpectingInput);
+                        await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
+                        return await stepContext.NextAsync(null, cancellationToken);
+
                 }
             }
             catch (Exception ex)
@@ -141,31 +137,15 @@ namespace CoreBot.Dialogs
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var promptMessage =
-                "Is there anything else you'd like to know about?\nYou can:\n" +
-                // "• Search for jobs\n" +
-                // "• Apply for a position\n" +
-                // "• Check application status\n" +
-                // "• Schedule interviews\n" +
-                "• View your applications";
+
+                           "How can I assist you with job applications today?\nYou can:\n" +
+                            "• Search for jobs\n" +
+                           "• Apply for a position\n" +
+                           "• View your applications";
 
             return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);
         }
 
-        private async Task HandleCompanyInfoRequest(WaterfallStepContext stepContext, string companyName, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(companyName))
-            {
-                await stepContext.Context.SendActivityAsync(
-                    MessageFactory.Text("Could you please specify which company you'd like to know about?"),
-                    cancellationToken);
-                return;
-            }
-
-            // Here you would typically query your database or service for company information
-            // For now, we'll just send a placeholder message
-            var message = $"Here's what I know about {companyName}. [Company information would be displayed here]";
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
-        }
 
         private async Task<DialogTurnResult> HandleDialogExceptionAsync(WaterfallStepContext stepContext, Exception ex, CancellationToken cancellationToken)
         {

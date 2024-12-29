@@ -14,9 +14,7 @@ namespace CoreBot.CognitiveModels
             SearchJobs,
             ApplyForJob,
             CheckApplicationStatus,
-            ScheduleInterview,
-            UpdateApplication,
-            GetCompanyInfo,
+            
             None
         }
 

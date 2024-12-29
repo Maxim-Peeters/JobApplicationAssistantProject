@@ -12,6 +12,7 @@ namespace CoreBot.Models
         public string CoverLetterUrl { get; set; }
         public string Notes { get; set; }
         public int JobId { get; set; }
+        public Job Job { get; set; }
 
     }
 }

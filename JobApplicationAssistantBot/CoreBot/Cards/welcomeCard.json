@@ -24,16 +24,18 @@
       "wrap": true
     }
   ],
+ 
   "actions": [
     {
-      "type": "Action.OpenUrl",
-      "title": "View Job Openings",
-      "url": "https://example.com/jobs"
+      "type": "Action.Submit",
+      "title": "Show all jobs",
+      "data": { "action": "SearchJobs" }
     },
     {
-      "type": "Action.OpenUrl",
-      "title": "Track Applications",
-      "url": "https://example.com/applications"
-    }
+      "type": "Action.Submit",
+      "title": "Check application status",
+      "data": { "action": "CheckApplicationStatus" }
+    },
+   
   ]
 }
