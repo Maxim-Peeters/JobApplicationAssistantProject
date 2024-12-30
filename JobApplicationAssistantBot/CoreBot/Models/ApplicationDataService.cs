@@ -52,5 +52,31 @@ namespace CoreBot.Models
 
             return application;
         }
+
+        public async Task<Application> CreateApplicationAsync(ApplicationRequest application)
+        {
+            // Map Application to ApplicationRequest
+            var applicationRequest = new ApplicationRequest
+            {
+                Status = Enums.ApplicationStatus.Submitted,
+                ResumeUrl = application.ResumeUrl,
+                CoverLetterUrl = application.CoverLetterUrl,
+                Notes = application.Notes,
+                JobId = application.JobId
+            };
+
+            // Send the POST request
+            var newApplication = await _apiService.PostAsync<Application, ApplicationRequest>("Applications", applicationRequest);
+
+            if (newApplication == null)
+                return null;
+
+            // Fetch the job details for the newly created application
+            var job = await _jobDataService.GetJobByIdAsync(newApplication.JobId);
+            newApplication.Job = job;
+
+            return newApplication;
+        }
+
     }
 }

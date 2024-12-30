@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
   "type": "AdaptiveCard",
   "version": "1.0",
@@ -6,36 +6,39 @@
     {
       "type": "Image",
       "url": "https://your-updated-image-url.com",
-      "size": "stretch"
+      "size": "stretch",
+      "altText": "Welcome Image"
     },
     {
       "type": "TextBlock",
       "spacing": "medium",
       "size": "large",
       "weight": "bolder",
-      "text": "Welcome to the Job Bot!",
+      "text": "Welcome to the Job Application Assistant!",
+      "wrap": true,
+      "horizontalAlignment": "center",
+      "color": "accent"
+    },
+    {
+      "type": "TextBlock",
+      "spacing": "small",
+      "size": "default",
+      "isSubtle": true,
+      "text": "I can help you find job openings, submit applications, and track their status. What would you like to do?",
       "wrap": true
     },
     {
       "type": "TextBlock",
+      "spacing": "medium",
       "size": "default",
-      "isSubtle": true,
-      "text": "I can help you find job openings and track your applications. Let's get started!",
-      "wrap": true
+      "weight": "bolder",
+      "text": "You can type 'cancel' to stop, when interacting with the application.",
+      "wrap": true,
+      "color": "good"
     }
   ],
- 
-  "actions": [
-    {
-      "type": "Action.Submit",
-      "title": "Show all jobs",
-      "data": { "action": "SearchJobs" }
-    },
-    {
-      "type": "Action.Submit",
-      "title": "Check application status",
-      "data": { "action": "CheckApplicationStatus" }
-    },
-   
-  ]
+  "backgroundImage": {
+    "url": "https://your-background-image-url.com",
+    "fillMode": "cover"
+  }
 }

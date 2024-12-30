@@ -52,6 +52,7 @@ namespace CoreBot
             // Register GetJobsDialog.
             services.AddSingleton<SearchJobsDialog>();
             services.AddSingleton<CheckApplicationStatusDialog>();
+            services.AddTransient<ApplyForJobDialog>();
 
             // The MainDialog that will be run by the bot.
             services.AddSingleton<MainDialog>();
