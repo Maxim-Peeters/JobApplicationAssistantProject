@@ -1,15 +1,15 @@
 ﻿
 using AutoMapper;
-using DAL;
-using DAL.Dto;
-using DAL.Models;
+using API.DAL;
+using API.DAL.Dto;
+using API.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CompaniesController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

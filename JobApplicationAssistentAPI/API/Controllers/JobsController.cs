@@ -1,14 +1,14 @@
-﻿using DAL.Models;
-using DAL;
+﻿using API.DAL.Models;
+using API.DAL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using DAL.Dto;
+using API.DAL.Dto;
 
 namespace API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class JobsController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
