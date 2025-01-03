@@ -21,7 +21,7 @@
     },
     "resourceName": {
       "type": "string",
-      "defaultValue": "dv-botAPI20241231154237",
+      "defaultValue": "dv-apiJobBot20250103222921",
       "metadata": {
         "description": "Name of the main resource to be created by this template."
       }
