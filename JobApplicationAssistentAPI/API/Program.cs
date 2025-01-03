@@ -1,22 +1,24 @@
-using DAL.Data;
-using DAL;
+using API.DAL.Data;
+using API.DAL;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<JobApplicationContext>(options =>
+    builder.Services.AddDbContext<JobApplicationContext>(options =>
     options.UseSqlServer(connectionString));
+
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddControllers();
+// Json object cycles
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-    });
+    .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -32,17 +34,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var myContext = scope.ServiceProvider.GetRequiredService<JobApplicationContext>();
+    DBInitializer.Initialize(myContext);
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var myContext = scope.ServiceProvider.GetRequiredService<JobApplicationContext>();
-    DBInitializer.Initialize(myContext);
-}
 
 app.Run();
 

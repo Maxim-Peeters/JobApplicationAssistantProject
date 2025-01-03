@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.11.35303.130
+VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{63D99016-153F-48FF-AC14-8C491DA13F34}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{0E997B3D-7132-4377-9FEF-7835B87B636E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{5502062E-DC72-4F91-A024-C8A2A3DD3FEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,19 +11,12 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{63D99016-153F-48FF-AC14-8C491DA13F34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63D99016-153F-48FF-AC14-8C491DA13F34}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63D99016-153F-48FF-AC14-8C491DA13F34}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63D99016-153F-48FF-AC14-8C491DA13F34}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0E997B3D-7132-4377-9FEF-7835B87B636E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E997B3D-7132-4377-9FEF-7835B87B636E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E997B3D-7132-4377-9FEF-7835B87B636E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E997B3D-7132-4377-9FEF-7835B87B636E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5502062E-DC72-4F91-A024-C8A2A3DD3FEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5502062E-DC72-4F91-A024-C8A2A3DD3FEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5502062E-DC72-4F91-A024-C8A2A3DD3FEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5502062E-DC72-4F91-A024-C8A2A3DD3FEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E895414B-7464-46E9-BAA0-165EC431199C}
 	EndGlobalSection
 EndGlobal
