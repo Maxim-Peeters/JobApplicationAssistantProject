@@ -26,7 +26,7 @@ namespace CoreBot.Services
         {
             _logger = logger;
 
-            _baseUrl = "http://localhost:5243/";
+            _baseUrl = "https://dv-apijobbot20250103222921.azurewebsites.net/api/";
             _client = new HttpClient();
             _client.BaseAddress = new Uri(_baseUrl);
             _logger.LogInformation("Initializing ApiService with base URL: {BaseUrl}", _baseUrl);
